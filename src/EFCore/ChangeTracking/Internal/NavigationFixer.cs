@@ -848,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     try
                                     {
                                         _inFixup = false;
-                                        joinEntry.SetEntityState(EntityState.Added);
+                                        joinEntry.SetEntityState(setModified ? EntityState.Added : EntityState.Unchanged);
                                     }
                                     finally
                                     {
@@ -893,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         try
                         {
                             _inFixup = false;
-                            joinEntry.SetEntityState(EntityState.Added);
+                            joinEntry.SetEntityState(setModified ? EntityState.Added : EntityState.Unchanged);
                         }
                         finally
                         {
