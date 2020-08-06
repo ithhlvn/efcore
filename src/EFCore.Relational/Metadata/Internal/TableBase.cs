@@ -103,6 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IColumnBase> ITableBase.Columns => Columns.Values;
 
         /// <inheritdoc/>
+        bool ITableBase.IsOptional(IEntityType entityType)
+            => IsOptionalSharingDependent(this, entityType, recursionDepth: 0);
+
+        /// <inheritdoc/>
         IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
             => RowInternalForeignKeys != null
                 && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
@@ -115,5 +119,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : Enumerable.Empty<IForeignKey>();
+
+        private static bool IsOptionalSharingDependent(ITableBase table, IEntityType entityType, int recursionDepth)
+        {
+            if (recursionDepth++ == RelationalEntityTypeExtensions.MaxEntityTypesSharingTable)
+            {
+                return true;
+            }
+
+            bool? optional = null;
+            foreach (var linkingForeignKey in table.GetRowInternalForeignKeys(entityType))
+            {
+                optional = (optional ?? true)
+                    && (!linkingForeignKey.IsRequiredDependent
+                        || IsOptionalSharingDependent(table, linkingForeignKey.PrincipalEntityType, recursionDepth));
+            }
+
+            return optional ?? false;
+        }
     }
 }

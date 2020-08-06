@@ -53,6 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IColumnBase FindColumn([NotNull] IProperty property);
 
         /// <summary>
+        ///     Gets the value indicating whether this entity type is optional.
+        /// </summary>
+        bool IsOptional([NotNull] IEntityType entityType);
+
+        /// <summary>
         ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.
         /// </summary>
         IEnumerable<IForeignKey> GetRowInternalForeignKeys([NotNull] IEntityType entityType);
