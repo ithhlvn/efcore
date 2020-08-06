@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         OrderDetailIds = ss.Set<Customer>().Where(c => c.City == cq.City).ToList()
                     }).OrderBy(x => x.City).Take(2)))).Message;
 
-            Assert.Equal(RelationalStrings.ProjectingCollectionOnKeylessEntityNotSupported, message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)

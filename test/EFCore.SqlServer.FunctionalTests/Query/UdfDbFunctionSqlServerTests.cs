@@ -610,19 +610,19 @@ ORDER BY [c].[Id], [t].[OrderId], [t].[OrderId0]");
             base.QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections();
 
             AssertSql(
-                @"SELECT [c].[Id], [t].[ProductId], [t0].[Id], [t0].[City], [t0].[CustomerId], [t0].[State], [t0].[Street]
+                @"SELECT [c].[Id], [t].[Id], [t].[City], [t].[CustomerId], [t].[State], [t].[Street], [t0].[ProductId]
 FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT [g].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
-    WHERE [g].[AmountSold] = 249
-) AS [t]
 LEFT JOIN (
     SELECT [a].[Id], [a].[City], [a].[CustomerId], [a].[State], [a].[Street]
     FROM [Addresses] AS [a]
     WHERE [a].[State] = N'NY'
-) AS [t0] ON [c].[Id] = [t0].[CustomerId]
-ORDER BY [c].[Id], [t0].[Id]");
+) AS [t] ON [c].[Id] = [t].[CustomerId]
+OUTER APPLY (
+    SELECT [g].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+    WHERE [g].[AmountSold] = 249
+) AS [t0]
+ORDER BY [c].[Id], [t].[Id]");
         }
 
         public override void QF_Select_NonCorrelated_Subquery_In_Anonymous()

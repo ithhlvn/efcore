@@ -1318,17 +1318,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region TableValuedFunction
 
-        [ConditionalFact(Skip = "Issue#15873")]
+        [ConditionalFact]
         public virtual void QF_Anonymous_Collection_No_PK_Throws()
         {
             using (var context = CreateContext())
             {
-                var query = from c in context.Customers
-                            select new { c.Id, products = context.GetTopSellingProductsForCustomer(c.Id).ToList() };
+                var query = (from c in context.Customers
+                             select new
+                             {
+                                 c.Id,
+                                 products = context.GetTopSellingProductsForCustomer(c.Id).ToList(),
+                                 orders = context.Orders.Where(o => o.CustomerId == c.Id).ToList()
+                             });
 
-                //Assert.Contains(
-                //    RelationalStrings.DbFunctionProjectedCollectionMustHavePK("GetTopSellingProductsForCustomer"),
-                //    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
+                Assert.Equal(
+                    RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin,
+                    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
             }
         }
 
@@ -1572,8 +1577,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                select new
                                {
                                    c.Id,
-                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList(),
-                                   Addresses = c.Addresses.Where(a => a.State == "NY").ToList()
+                                   Addresses = c.Addresses.Where(a => a.State == "NY").ToList(),
+                                   Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList()
                                }).ToList();
 
                 Assert.Equal(4, results.Count);
